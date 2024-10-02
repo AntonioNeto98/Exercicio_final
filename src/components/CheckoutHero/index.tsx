@@ -8,12 +8,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootReducer } from "../../store";
 import { open } from '../../store/reducers/cart'
 import { Link } from "react-router-dom";
+import { useGetCheckoutQuery, usePurchaseMutation } from "../../store/api";
 
 
 
 const CheckoutHero =() => {
+    const { data: checkout } =useGetCheckoutQuery ()
     const {isOpen} = useSelector((state: RootReducer) => state.cart );
     const dispatch = useDispatch()
+    const [purchase, {isLoading, isError, data}] = usePurchaseMutation();
     
     const form = useFormik({
         initialValues: {
@@ -51,8 +54,41 @@ const CheckoutHero =() => {
             .required('O campo é obrigatorio'),
         }),
         onSubmit: (values) => {
-            console.log(values)
+            purchase({
+                billing: {
+                    name: values.fullName
+                },
+                delivery: {
+                    cidade: values.cidade,
+                    endereco: values.endereco,
+                    cep: values.cep,
+                    numero: values.numeroCasa,
+                },
+                payment: {
+                    instalments: 1,
+                    card: {
+                        name: values.cartaoNome,
+                        number: values.cartaoNumero,
+                        expires: {
+                            month: 1,
+                            year: 2023,
+                        },
+                        code: Number(values.cartaoCvv),
+                    }
+                    },
+                    products: [
+                        {
+                            id: 1,
+                            price: 10
+                        }
+                    ]
+            })
+            .then(response => {
+                console.log(response);
+            }).catch(error => {
+                console.error(error);})
         }
+        
     
         })
 
@@ -227,7 +263,7 @@ const CheckoutHero =() => {
             
 
             <CheckBotao>
-                <button type="submit" onClick={openConclu}>Concluir Pedido</button>
+                <button type="submit">Concluir Pedido</button>
                 <Botao >
                         <Link to="/cardapio">
                             Voltar para carrinho
