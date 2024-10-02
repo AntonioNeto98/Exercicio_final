@@ -4,19 +4,14 @@ import { CartaoList, CartaoNumber, CheckBotao, CheckCartao, CheckConclusao, Chec
 import { Botao } from "../Hero/styles";
 import { Overlay } from "../Carrinho/styled";
 
-import { useDispatch, useSelector } from "react-redux";
-import { RootReducer } from "../../store";
-import { open } from '../../store/reducers/cart'
+
 import { Link } from "react-router-dom";
-import { useGetCheckoutQuery, usePurchaseMutation } from "../../store/api";
+import { usePurchaseMutation } from "../../store/api";
 
 
 
 const CheckoutHero =() => {
-    const { data: checkout } =useGetCheckoutQuery ()
-    const {isOpen} = useSelector((state: RootReducer) => state.cart );
-    const dispatch = useDispatch()
-    const [purchase, {isLoading, isError, data}] = usePurchaseMutation();
+    const [purchase ] = usePurchaseMutation();
     
     const form = useFormik({
         initialValues: {
@@ -48,7 +43,7 @@ const CheckoutHero =() => {
             cartaoCvv:  Yup.string().min(3, 'O campo precisa ter pelo menos 3 caracteres')
             .max(3, 'o campo precisa ter no maximo 3 caracteres')
             .required('O campo é obrigatorio'),
-            vencimento: Yup.string().min(5, 'O campo precisa ter pelo menos 5 caracteres')
+            vencimento: Yup.string()
             .required('O campo é obrigatorio'),
             anoVencimento:  Yup.string().min(5, 'O campo precisa ter pelo menos 5 caracteres')
             .required('O campo é obrigatorio'),
@@ -92,9 +87,6 @@ const CheckoutHero =() => {
     
         })
 
-        const openConclu = () => {
-            dispatch(open())
-        }
 
         const getErrorMessage = (fieldName: string, message?: string) => {
             const isTouched = fieldName in form.touched
@@ -275,7 +267,7 @@ const CheckoutHero =() => {
         </CheckoutForm>
 
         
-        <CheckConclusao className={isOpen? 'open' : ''}>
+        <CheckConclusao >
             
                 <h3>Pedido realizado - {}</h3>
                 <p>

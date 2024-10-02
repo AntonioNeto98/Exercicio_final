@@ -40,22 +40,19 @@ import { Produto } from '../components/CardaHero';
             getCardapio: builder.query<Produto[], void> ({
                 query: () => 'cardapio'
             }),
-            getCheckout: builder.query<any, void> ({
-                query: () => 'checkout'
-            }),
             purchase: builder.mutation<any, PurchasePayload> ({
-                query: (body: any) => ({
+                query: (body: PurchasePayload) => ({
                     url: 'checkout',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body
+                    body,
                 })
             }) 
         }),
     })
 
 
-export const { useGetCardapioQuery, useGetCheckoutQuery, usePurchaseMutation } = api
+export const { useGetCardapioQuery, usePurchaseMutation } = api
 export default api
