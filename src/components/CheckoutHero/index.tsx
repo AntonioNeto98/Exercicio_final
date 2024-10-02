@@ -1,17 +1,19 @@
-
 import { useFormik } from "formik";
 import * as Yup from 'yup';
 import { CartaoList, CartaoNumber, CheckBotao, CheckCartao, CheckConclusao, CheckList, CheckNumber, CheckoutCont, CheckoutForm } from "./styled";
 import { Botao } from "../Hero/styles";
+import { Overlay } from "../Carrinho/styled";
 
+import { useDispatch, useSelector } from "react-redux";
+import { RootReducer } from "../../store";
+import { open } from '../../store/reducers/cart'
 import { Link } from "react-router-dom";
-import { useCreatePurchaseMutation } from "../../store/apiSlice";
 
 
 
-const CheckoutHero: React.FC =() => {
-    
-    const [createPurchase, { isSuccess }] = useCreatePurchaseMutation();
+const CheckoutHero =() => {
+    const {isOpen} = useSelector((state: RootReducer) => state.cart );
+    const dispatch = useDispatch()
     
     const form = useFormik({
         initialValues: {
@@ -48,22 +50,15 @@ const CheckoutHero: React.FC =() => {
             anoVencimento:  Yup.string().min(5, 'O campo precisa ter pelo menos 5 caracteres')
             .required('O campo é obrigatorio'),
         }),
-        onSubmit: async (values) => {
-            try {
-                await createPurchase({
-                productId: 'exampleProductId',
-                quantity: 1,
-                userId: 'exampleUserId',
-                }).unwrap();
-                alert('Compra realizada com sucesso!');
-            } catch (error) {
-                console.error('Falha ao realizar a compra:', error);
-            }
-            },
+        onSubmit: (values) => {
+            console.log(values)
+        }
     
         })
 
-        
+        const openConclu = () => {
+            dispatch(open())
+        }
 
         const getErrorMessage = (fieldName: string, message?: string) => {
             const isTouched = fieldName in form.touched
@@ -74,26 +69,7 @@ const CheckoutHero: React.FC =() => {
         }
 
         return(
-            <> 
-            {isSuccess ? (   <CheckConclusao onSubmit={form.handleSubmit} >
-            
-            <h3>Pedido realizado - {}</h3>
-            <p>
-                Estamos felizes em informar que seu pedido já está em processo de preparação e, em breve, será entregue no endereço fornecido.
-            </p>
-            <p>
-                Gostaríamos de ressaltar que nossos entregadores não estão autorizados a realizar cobranças extras.
-            </p>
-            <p>
-                Lembre-se da importância de higienizar as mãos após o recebimento do pedido, garantindo assim sua segurança e bem-estar durante a refeição.
-            </p>
-            <p>
-                Esperamos que desfrute de uma deliciosa e agradável experiência gastronômica. Bom apetite!
-                </p>
-            <Botao >Concluir</Botao>
-        
-    </CheckConclusao>
-    ): (
+            <>
             <CheckoutForm onSubmit={form.handleSubmit}>
             <CheckoutCont >
                 <h3>Entrega</h3>
@@ -251,7 +227,7 @@ const CheckoutHero: React.FC =() => {
             
 
             <CheckBotao>
-                <button type="submit" >Concluir Pedido</button>
+                <button type="submit" onClick={openConclu}>Concluir Pedido</button>
                 <Botao >
                         <Link to="/cardapio">
                             Voltar para carrinho
@@ -261,7 +237,27 @@ const CheckoutHero: React.FC =() => {
         </CheckCartao>
         </CheckoutCont>
         </CheckoutForm>
-    )}
+
+        
+        <CheckConclusao className={isOpen? 'open' : ''}>
+            
+                <h3>Pedido realizado - {}</h3>
+                <p>
+                    Estamos felizes em informar que seu pedido já está em processo de preparação e, em breve, será entregue no endereço fornecido.
+                </p>
+                <p>
+                    Gostaríamos de ressaltar que nossos entregadores não estão autorizados a realizar cobranças extras.
+                </p>
+                <p>
+                    Lembre-se da importância de higienizar as mãos após o recebimento do pedido, garantindo assim sua segurança e bem-estar durante a refeição.
+                </p>
+                <p>
+                    Esperamos que desfrute de uma deliciosa e agradável experiência gastronômica. Bom apetite!
+                    </p>
+                <Botao >Concluir</Botao>
+            
+            <Overlay />
+        </CheckConclusao>
         </>
         )
     }
